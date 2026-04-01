@@ -93,10 +93,10 @@ TYPESCRIPT_PACKAGE_JSON_LOCATION="resources/app/extensions/node_modules/typescri
 # Give the odddly-packaged Markdown server a less-generic name
 MARKDOWN_BIN_NAME="markdownServerMain.js"
 
-curl -sL "$VSCODIUM_ARCHIVE_URL" > "$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz
+curl -sL "$VSCODIUM_ARCHIVE_URL" >"$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz
 if [ $verify_integrity -eq 1 ]; then
-  curl -sL "$VSCODIUM_ARCHIVE_URL".sha256 > "$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz.sha256
-  EXPECTED_VSCODIUM_HASH=$(awk '{print $1}' < "$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz.sha256)
+  curl -sL "$VSCODIUM_ARCHIVE_URL".sha256 >"$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz.sha256
+  EXPECTED_VSCODIUM_HASH=$(awk '{print $1}' <"$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz.sha256)
   ACTUAL_VSCODIUM_HASH=$(openssl sha256 -r "$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz | awk '{print $1}')
   if [ $verbose -eq 1 ]; then
     echo "EXPECTED_VSCODIUM_HASH=$EXPECTED_VSCODIUM_HASH"
@@ -119,9 +119,9 @@ install shims/vscode-markdown-language-server "$BINDIR"
 cp "$VSCODIUM_EXTRACT_DIR"/"$MARKDOWN_SERVER_LOCATION" "$BINDIR"/"$MARKDOWN_BIN_NAME"
 
 if [ $no_dependencies -eq 0 ]; then
-mkdir -p "$BINDIR"/node_modules/typescript/lib
-cp "$VSCODIUM_EXTRACT_DIR"/"$TYPESCRIPT_JS_LOCATION" "$BINDIR"/node_modules/typescript/lib
-cp "$VSCODIUM_EXTRACT_DIR"/"$TYPESCRIPT_PACKAGE_JSON_LOCATION" "$BINDIR"/node_modules/typescript
+  mkdir -p "$BINDIR"/node_modules/typescript/lib
+  cp "$VSCODIUM_EXTRACT_DIR"/"$TYPESCRIPT_JS_LOCATION" "$BINDIR"/node_modules/typescript/lib
+  cp "$VSCODIUM_EXTRACT_DIR"/"$TYPESCRIPT_PACKAGE_JSON_LOCATION" "$BINDIR"/node_modules/typescript
 fi
 
 rm -rf "$VSCODIUM_DOWNLOAD_DIR"
