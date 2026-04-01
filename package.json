@@ -24,8 +24,8 @@
     "deploy_eslint_url": "https://open-vsx.org/api/dbaeumer/vscode-eslint/3.0.24/file/dbaeumer.vscode-eslint-3.0.24.vsix"
   },
   "scripts": {
-    "build": "sh ./extract-langservers.sh -v -l -n -o ./bin/",
-    "build-for-deploy": "sh ./extract-langservers.sh -v -c $npm_package_config_deploy_vscodium_url -e $npm_package_config_deploy_eslint_url -n -o ./bin/"
+    "build": "sh ./extract-langservers.sh -v -i -l -n -o ./bin/",
+    "build-for-deploy": "sh ./extract-langservers.sh -v -i -c $npm_package_config_deploy_vscodium_url -e $npm_package_config_deploy_eslint_url -n -o ./bin/"
   },
   "peerDependencies": {
     "typescript": ">=4.0.0"

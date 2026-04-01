@@ -35,15 +35,17 @@ usage() {
 verbose=0
 no_dependencies=0
 latest=0
+verify_integrity=0
 BINDIR=""
 VSCODIUM_ARCHIVE_URL=""
 ESLINT_ARCHIVE_URL=""
 
-while getopts "vnhlo:c:e:" opt; do
+while getopts "vnhlio:c:e:" opt; do
   case "$opt" in
   v) verbose=1 ;;
   n) no_dependencies=1 ;;
   l) latest=1 ;;
+  i) verify_integrity=1 ;;
   o) BINDIR="$OPTARG" ;;
   c) VSCODIUM_ARCHIVE_URL="$OPTARG" ;;
   e) ESLINT_ARCHIVE_URL="$OPTARG" ;;
@@ -79,6 +81,7 @@ if [ $verbose -eq 1 ]; then
 fi
 
 TMPROOT=${TMPDIR:-"/tmp"}
+VSCODIUM_DOWNLOAD_DIR=$(mktemp -d "$TMPROOT/vscodium-download.XXXXXX")
 VSCODIUM_EXTRACT_DIR=$(mktemp -d "$TMPROOT/vscodium-extract.XXXXXX")
 
 CSS_SERVER_LOCATION="resources/app/extensions/css-language-features/server/dist/node/cssServerMain.js"
@@ -90,7 +93,21 @@ TYPESCRIPT_PACKAGE_JSON_LOCATION="resources/app/extensions/node_modules/typescri
 # Give the odddly-packaged Markdown server a less-generic name
 MARKDOWN_BIN_NAME="markdownServerMain.js"
 
-curl -sL "$VSCODIUM_ARCHIVE_URL" | gzip -dc | tar -C "$VSCODIUM_EXTRACT_DIR" -xf - ./"$CSS_SERVER_LOCATION" ./"$HTML_SERVER_LOCATION" ./"$JSON_SERVER_LOCATION" ./"$MARKDOWN_SERVER_LOCATION" ./"$TYPESCRIPT_JS_LOCATION" ./"$TYPESCRIPT_PACKAGE_JSON_LOCATION"
+curl -sL "$VSCODIUM_ARCHIVE_URL" > "$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz
+if [ $verify_integrity -eq 1 ]; then
+  curl -sL "$VSCODIUM_ARCHIVE_URL".sha256 > "$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz.sha256
+  EXPECTED_VSCODIUM_HASH=$(awk '{print $1}' < "$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz.sha256)
+  ACTUAL_VSCODIUM_HASH=$(openssl sha256 -r "$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz | awk '{print $1}')
+  if [ $verbose -eq 1 ]; then
+    echo "EXPECTED_VSCODIUM_HASH=$EXPECTED_VSCODIUM_HASH"
+    echo "ACTUAL_VSCODIUM_HASH=$ACTUAL_VSCODIUM_HASH"
+  fi
+  if [ "$EXPECTED_VSCODIUM_HASH" != "$ACTUAL_VSCODIUM_HASH" ]; then
+    echo "VSCodium archive integrity check failed."
+    exit 1
+  fi
+fi
+gzip -dc "$VSCODIUM_DOWNLOAD_DIR"/vscodium.tar.gz | tar -C "$VSCODIUM_EXTRACT_DIR" -xf - ./"$CSS_SERVER_LOCATION" ./"$HTML_SERVER_LOCATION" ./"$JSON_SERVER_LOCATION" ./"$MARKDOWN_SERVER_LOCATION" ./"$TYPESCRIPT_JS_LOCATION" ./"$TYPESCRIPT_PACKAGE_JSON_LOCATION"
 
 install shims/vscode-css-language-server "$BINDIR"
 cp "$VSCODIUM_EXTRACT_DIR"/"$CSS_SERVER_LOCATION" "$BINDIR"
@@ -107,6 +124,7 @@ cp "$VSCODIUM_EXTRACT_DIR"/"$TYPESCRIPT_JS_LOCATION" "$BINDIR"/node_modules/type
 cp "$VSCODIUM_EXTRACT_DIR"/"$TYPESCRIPT_PACKAGE_JSON_LOCATION" "$BINDIR"/node_modules/typescript
 fi
 
+rm -rf "$VSCODIUM_DOWNLOAD_DIR"
 rm -rf "$VSCODIUM_EXTRACT_DIR"
 
 ESLINT_DOWNLOAD_DIR=$(mktemp -d "$TMPROOT/eslint-extension-download.XXXXXX")
