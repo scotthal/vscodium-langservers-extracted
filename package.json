@@ -1,6 +1,6 @@
 {
   "name": "vscodium-langservers-extracted",
-  "version": "0.1.0",
+  "version": "1.112.01907",
   "description": "Extract HTML/CSS/JSON/ESLint language servers from official builds of VS Codium.",
   "author": "Scott Hallock <scott@hallocks.net> (https://github.com/scotthal)",
   "repository": {
@@ -19,8 +19,13 @@
     "vscode-json-language-server": "bin/vscode-json-language-server",
     "vscode-markdown-language-server": "bin/vscode-markdown-language-server"
   },
+  "config": {
+    "deploy_vscodium_url": "https://github.com/VSCodium/vscodium/releases/download/1.112.01907/VSCodium-linux-x64-1.112.01907.tar.gz",
+    "deploy_eslint_url": "https://open-vsx.org/api/dbaeumer/vscode-eslint/3.0.24/file/dbaeumer.vscode-eslint-3.0.24.vsix"
+  },
   "scripts": {
-    "build": "sh ./extract-langservers.sh -l -n -o ./bin/"
+    "build": "sh ./extract-langservers.sh -v -l -n -o ./bin/",
+    "build-for-deploy": "sh ./extract-langservers.sh -v -c $npm_package_config_deploy_vscodium_url -e $npm_package_config_deploy_eslint_url -n -o ./bin/"
   },
   "peerDependencies": {
     "typescript": ">=4.0.0"
