@@ -49,7 +49,7 @@ npm install --save-dev vscodium-langservers-extracted
 # peerDependencies
 ```
 
-For a terminal-based editor like Neovim or (for some), emacs, you can create a
+For a terminal-based editor like Neovim or (for some) emacs, you can create a
 `package.json` script that runs your editor, and the project-local language
 servers will be on your path.
 
@@ -82,20 +82,34 @@ editor, you can specify the locations of prior versions with
 sh ./extract-langservers.sh -o output_dir -c vscodium_archive_url -e eslint_extension_archive_url
 ```
 
-Provide full URLs to the installation archives for VSCodium and for the ESLint
-VS Code extension on Open VSX.  Use the location of a **Linux x64 .tar.gz**
-archive for VSCodium.  The only code extracted from the archive is Javascript.
-It will work on any platform supported by Node.  Archives for other platforms
-may place the bundled language servers in different locations and cause
-extraction errors.
+Provide full URLs to the installation archives for VSCodium and for the [ESLint
+VS Code extension on Open
+VSX](https://open-vsx.org/extension/dbaeumer/vscode-eslint).  Use the location
+of a **Linux x64 .tar.gz** archive for VSCodium.  The only code extracted from
+the archive is Javascript. It will work on any platform supported by Node.
+Archives for other platforms may place the bundled language servers in different
+locations and cause extraction errors.
+
+With any of these invocations, you can optionally check the integrity of the
+VSCodium archive with the `-i` flag.
+
+```
+sh ./extract-langservers.sh -i -o output_dir -c vscodium_archive_url -e eslint_extension_archive_url
+```
+
+The integrity check requires that the `openssl` command line tool be available.
+
+Open VSX does not currently export archive integrity hashes for its extension
+archives.
 
 # Dependencies
 
 `extract-langservers.sh` depends on `curl`, `gzip`, `tar` (GNU and BSD tar have
-been tested and found to work), `jq` (only if the `-l` option is specified), and
-`unzip`.  `install` is also used, and turns out not to be in the POSIX
-specification, but nearly every Unix environment has `install` available.  Of
-these, `jq` and `unzip` are the most likely to be missing on your system.
+been tested and found to work), `jq` (only if the `-l` option is specified),
+`openssl` (only if the `-i` option is specified), and `unzip`.  `install` is
+also used, and turns out not to be in the POSIX specification, but nearly every
+Unix environment has `install` available.  Of these, `jq` and `unzip` are the
+most likely to be missing on your system.
 
 `node` remains a requirement for using the language servers.
 
@@ -157,12 +171,11 @@ absolute minimum.  Without the type definitions, the experience of editing
 inline Javascript in HTML is degraded.  In most projects, Javascript inline in
 HTML is kept to a minimum, making the tradeoff worthwhile.
 
-#### If you install the (upcoming) npm package
+#### If you install the NPM package
 
-The npm package does not include any of the Typescript compiler code bundled
+The NPM package does not include any of the Typescript compiler code bundled
 into VSCodium.  It instead places `typescript` in `peerDependencies`.  Thus,
 you will need to install `typescript` to get the HTML language server to start.
-There are a couple of options to do so.
 
 ## Advantages of Extracting from VSCodium
 
@@ -172,7 +185,7 @@ There are a couple of options to do so.
 - No need to clone a very large repository.
 - No need to ensure build dependencies are met.  The extraction process uses a
   simple shell script with minimal dependencies.
-- Language server availability is not tied to npm.  The language servers can be
+- Language server availability is not tied to NPM.  The language servers can be
   installed wherever needed.
 
 ## Drawbacks of Extracting from VSCodium
